@@ -7,3 +7,4 @@ project_marathon_requirements.txt
 logs/
 scripts/__pycache__
 *.pyc
+.ipynb_checkpoints/
