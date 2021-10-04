@@ -3,7 +3,7 @@ from new_user import SpotifyUser
 from api_contacter import Contacter
 
 def main():
-    logging.basicConfig(filename='../logs/ryan_data_collection.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
+    logging.basicConfig(filename='../logs/ryan_data_collection.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
     ryan_user_id = '1232063482'
     ryan_contacter = Contacter()
     ryan_contacter.gather_auth_hash('../credentials/auth_hash.txt')

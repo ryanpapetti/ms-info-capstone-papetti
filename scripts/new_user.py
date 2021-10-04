@@ -43,22 +43,35 @@ class SpotifyUser:
         '''
         if self.contacter is None:
             raise ValueError('Add a contacter!')
-        logging.info('Working on hitting the endpoint')
+        logging.info('Working on hitting the users playlists endpoint')
         link = f'https://api.spotify.com/v1/users/{self.user_id}/playlists'
         api_response = self.contacter.contact_api(link).json()
-        total = api_response['total']
-        assert type(total) == int #I believe that occasionally a bad query can yield a non int total.
-        final_ids = [(item['id'],item['name']) for item in api_response['items']]
+        final_ids = []
+        playlists = api_response['items']
+        playlists_to_extend = []
+        for playlist in playlists:                
+            playlist_name = playlist['name']
+            
+            logging.info(f'Working with {playlist_name}')
+
+            if playlist['owner']['id'] == self.user_id:
+                logging.info(playlist['owner'])
+                playlists_to_extend.append((playlist['id'],playlist['name']))
+            final_ids.extend(playlists_to_extend)
         total_queries_made = 1
-        while api_response['next'] and total_queries_made < 30: #call the api until you collect all playlists
+        while api_response['next']: #call the api until you collect all playlists
             new_link = api_response['next']
             api_response = self.contacter.contact_api(new_link).json()
-            final_ids.extend([(item['id'],item['name']) for item in api_response['items']])
+            playlists = api_response['items']
+            playlists_to_extend = []
+            for playlist in playlists:                
+                if playlist['owner']['id'] == self.user_id:
+                    playlists_to_extend.append((playlist['id'],playlist['name']))
+                final_ids.extend(playlists_to_extend)
             total_queries_made +=1
-        if len(set(final_ids)) != total: #this means that too many queries were made...
-            if (total / 50) > 30:
-                raise PermissionError('Programmer needs to account for users with 1500 + playlists')
-            raise ValueError('Too many queries were made and less than 30 should have been made...')
+        
+        logging.info(f'Collected all data in {total_queries_made} queries')
+        
         return set(final_ids)
 
 
