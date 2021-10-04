@@ -6,7 +6,9 @@ Spotify User
 This script hopefully aims to control the User class that can hold playlists, etc.
 
 '''
-import json, logging
+import json, logging, pandas as pd, numpy as np
+from sklearn import preprocessing, metrics
+from sklearn.cluster import KMeans
 from playlist import Playlist
 from track import Track
 
@@ -156,6 +158,12 @@ class SpotifyUser:
             json.dump(audio_features_data,writer)
     
 
+
+    def load_audio_features_data(self, filepath):
+        logging.info(f'Loading audio features data from {filepath}')
+        with open(filepath) as reader:
+            return json.load(reader)
+
    
 
     def collect_and_store_data(self, final_storage_path): #THIS MAY BE EXPANDED UPON SIGNIFICANTLY
@@ -182,5 +190,68 @@ class SpotifyUser:
 
 
     
+
+    def prepare_data_for_clustering(self,aggregated_audio_features_data, alternative_features=None):
+        aggregated_audio_features_data_copy = aggregated_audio_features_data.copy()
+        
+        if alternative_features is not None:
+            features = [
+            "danceability",
+            "energy",
+            "loudness",
+            "speechiness",
+            "acousticness",
+            "instrumentalness",
+            "liveness",
+            "valence",
+            "tempo",
+            "duration_ms"]
+        else:
+            features = alternative_features
+        
+        prepped_features = {}
+
+        for track_id, track_features in aggregated_audio_features_data_copy.items():
+
+
+            prepped_features[track_id] = {key:val for key,val in track_features.items() if key in features}
+        
+        return pd.DataFrame(prepped_features).T
+
+    @staticmethod
+    def normalize_prepped_data(prepped_data):
+        scaler = preprocessing.MinMaxScaler()
+        normalized_data = scaler.fit_transform(prepped_data)
+        normalized_data_df = pd.DataFrame(normalized_data, columns=prepped_data.columns, index=prepped_data.index)
+        return normalized_data_df
+
+
+    @staticmethod
+    def cluster_data(normalized_data, initialized_model):
+        return initialized_model.fit_transform(normalized_data)
+
+
+    
+    def evaluate_kmeans_clusterings(self,normalized_data):
+        inertias = []
+        davies_bouldin_scores = []
+
+        for k in range(1, 51):
+            model = KMeans(n_clusters=k, random_state=0)
+            model.fit(normalized_data) #fit/train the model
+            labels = model.labels_
+            davies_bouldin_scores.append(metrics.davies_bouldin_score(normalized_data, labels))
+            inertias.append(model.inertia_)
+    
+        return inertias, davies_bouldin_scores
+
+    
+
+
+    def plot_inertias(self,inertias):
+        pass
+
+    
+
 
 
