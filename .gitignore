@@ -1,0 +1,9 @@
+data/
+exploration/
+credentials/
+notes/
+project_marathon_requirements.txt
+.vscode/
+logs/
+scripts/__pycache__
+*.pyc
