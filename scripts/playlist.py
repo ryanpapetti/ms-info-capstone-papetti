@@ -19,7 +19,7 @@ class Playlist:
     def generate_playlist_from_user(cls,user, playlist_params):
         endpoint = f'https://api.spotify.com/v1/users/{user.user_id}/playlists' #it is a POST request
 
-        response_json = user.contacter.session.post(endpoint, headers = user.contacter.auth_header, data = playlist_params, contact_type='post').json()
+        response_json = user.contacter.session.post(endpoint, headers = user.contacter.accessHeader, data = playlist_params).json()
 
         description = response_json['description']
         playlist_id = response_json['id']
@@ -113,7 +113,7 @@ class Playlist:
             body_params = json.dumps({'uris': track_uris_to_add})
             endpoint = f'https://api.spotify.com/v1/playlists/{self.playlist_id}/tracks'
             try:
-                response_json = user.contacter.contact_api(endpoint, data_params = body_params).json()
+                response_json = user.contacter.contact_api(endpoint, data_params = body_params, contact_type = 'post').json()
             except:
                 logging.info(response_json.json())
                 raise ValueError

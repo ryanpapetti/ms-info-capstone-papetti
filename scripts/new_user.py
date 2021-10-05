@@ -6,7 +6,7 @@ Spotify User
 This script hopefully aims to control the User class that can hold playlists, etc.
 
 '''
-import json, logging, pandas as pd, numpy as np
+import json, logging, pandas as pd, numpy as np, matplotlib.pyplot as plt
 from sklearn import preprocessing, metrics
 from sklearn.cluster import KMeans
 from playlist import Playlist
@@ -194,7 +194,7 @@ class SpotifyUser:
     def prepare_data_for_clustering(self,aggregated_audio_features_data, alternative_features=None):
         aggregated_audio_features_data_copy = aggregated_audio_features_data.copy()
         
-        if alternative_features is not None:
+        if alternative_features is None:
             features = [
             "danceability",
             "energy",
@@ -228,7 +228,8 @@ class SpotifyUser:
 
     @staticmethod
     def cluster_data(normalized_data, initialized_model):
-        return initialized_model.fit_transform(normalized_data)
+        initialized_model.fit(normalized_data)
+        return initialized_model
 
 
     
@@ -248,10 +249,49 @@ class SpotifyUser:
     
 
 
-    def plot_inertias(self,inertias):
-        pass
+    def plot_inertias_db_scores(self,inertias, db_scores):
+        fig, axes = plt.subplots(ncols=2)
+        left_ax,right_ax = axes
 
-    
+        left_ax.plot(inertias)
+        right_ax.plot(db_scores)
+
+        fig.savefig('../results/inertia_dbscore.png', bbox_inches = 'tight', dpi=300)
 
 
+    def generate_uploadable_playlists(self, labelled_data):
+        uploadable_playlists = {}
+
+        for label in set(labelled_data['Label']):
+            uploadable_playlists[label] = list(labelled_data[labelled_data['Label'] == label].index)
+
+        return uploadable_playlists
+
+
+    def add_cluster_playlists(self, cluster_playlists):
+        '''
+        fully_establish_and_add_cluster_playlists(self, desired_algorithm = 'HC 8')
+
+        desired_algorithm = 'HC 8' - a string representing the preamble of the desired tables inside the database
+
+        For each of the playlists created by find_most_typical_tracks_per_cluster, this function officially adds the playlist to the user's Spotify account, making it an actual playable playlist
+
+        Returns None, but creates playlists on Spotify and updates user database
+
+        '''
+
+        for cluster_id, cluster_playlist in cluster_playlists.items():
+            new_name = f'KMeans Cieran {cluster_id}'
+            playlist_params = {'name':new_name}
+            associated_tracks = cluster_playlist
+            associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
+
+            playlist = Playlist.generate_playlist_from_user(user = self, playlist_params = json.dumps(playlist_params))
+
+            playlist.add_track_objs_to_playlist_obj(associated_tracks_objs)
+
+            playlist.add_tracks_to_spotify_playlist(user = self)
+
+
+        
 
