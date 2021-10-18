@@ -35,9 +35,9 @@ class SpotifyUser:
  
     
 
-    def get_all_playlist_ids(self):
+    def get_all_user_playlist_ids(self):
         '''
-        get_all_playlist_ids(self)
+        get_all_user_playlist_ids(self)
 
         This function calls https://api.spotify.com/v1/users/{self.user_id}/playlists to retrieve the playlist_id of every user playlist. I believe this only includes public playlists. If the user has over 1500 playlists, a Permission error is raised (to avoid drastic amounts of queries, but likely needs to be changed). If there is no contacter, a ValueError is raised. If over 30 queries were made. but fewer were expected, a ValueError is raised.
 
@@ -81,11 +81,11 @@ class SpotifyUser:
 
 
     
-    def get_all_playlist_information(self):
+    def get_all_playlist_information(self, custom_playlist_ids = None):
         '''
         get_all_playlist_information(self)
 
-        Calls self.get_all_playlist_ids() and fills out self.playlists with the Playlist() instances
+        Calls self.get_all_user_playlist_ids() and fills out self.playlists with the Playlist() instances
 
         Raises an error is self.contacter is None.
 
@@ -95,7 +95,7 @@ class SpotifyUser:
 
         if self.contacter is None:
             raise ValueError('Add a contacter')
-        playlist_ids = self.get_all_playlist_ids()
+        playlist_ids = self.get_all_user_playlist_ids() if custom_playlist_ids is None else custom_playlist_ids
 
         for playlist_info in playlist_ids:
             #make a playlist instance and add it to the user's playlist dict
@@ -166,7 +166,7 @@ class SpotifyUser:
 
    
 
-    def collect_and_store_data(self, final_storage_path): #THIS MAY BE EXPANDED UPON SIGNIFICANTLY
+    def collect_and_store_data(self, final_storage_path, custom_playlist_ids = None): #THIS MAY BE EXPANDED UPON SIGNIFICANTLY
         '''
         collect_and_store_data(self)
 
@@ -179,7 +179,7 @@ class SpotifyUser:
         - retrieves all audio features for all tracks
         '''
         logging.info('Gathering all playlist info')
-        self.get_all_playlist_information()
+        self.get_all_playlist_information(custom_playlist_ids=custom_playlist_ids)
         for playlist in self.playlists.values():
             playlist.convert_raw_track_items()
         logging.info('Converted all raw track items')
@@ -237,7 +237,7 @@ class SpotifyUser:
         inertias = []
         davies_bouldin_scores = []
 
-        for k in range(1, 51):
+        for k in range(1, 26):
             model = KMeans(n_clusters=k, random_state=0)
             model.fit(normalized_data) #fit/train the model
             labels = model.labels_
@@ -281,7 +281,7 @@ class SpotifyUser:
         '''
 
         for cluster_id, cluster_playlist in cluster_playlists.items():
-            new_name = f'KMeans Cieran {cluster_id}'
+            new_name = f'KMeans {cluster_id}'
             playlist_params = {'name':new_name}
             associated_tracks = cluster_playlist
             associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
