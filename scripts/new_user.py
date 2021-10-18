@@ -9,6 +9,7 @@ This script hopefully aims to control the User class that can hold playlists, et
 import json, logging, pandas as pd, numpy as np, matplotlib.pyplot as plt
 from sklearn import preprocessing, metrics
 from sklearn.cluster import KMeans
+from scipy.cluster.hierarchy import dendrogram, linkage, cut_tree
 from playlist import Playlist
 from track import Track
 
@@ -32,6 +33,7 @@ class SpotifyUser:
         self.user_id = spotify_id
         self.playlists = playlists
         self.contacter = contacter
+        np.random.seed(420)
  
     
 
@@ -227,18 +229,18 @@ class SpotifyUser:
 
 
     @staticmethod
-    def cluster_data(normalized_data, initialized_model):
+    def kmeans_cluster_data(normalized_data, initialized_model):
         initialized_model.fit(normalized_data)
         return initialized_model
 
 
-    
-    def evaluate_kmeans_clusterings(self,normalized_data):
+    @staticmethod
+    def evaluate_kmeans_clusterings(normalized_data):
         inertias = []
         davies_bouldin_scores = []
 
-        for k in range(1, 26):
-            model = KMeans(n_clusters=k, random_state=0)
+        for k in range(2, 26):
+            model = KMeans(n_clusters=k)
             model.fit(normalized_data) #fit/train the model
             labels = model.labels_
             davies_bouldin_scores.append(metrics.davies_bouldin_score(normalized_data, labels))
@@ -246,6 +248,10 @@ class SpotifyUser:
     
         return inertias, davies_bouldin_scores
 
+
+    @staticmethod
+    def produce_linkage_matrix(normalized_data):
+        return linkage(normalized_data,method='ward')
     
 
 
@@ -254,9 +260,21 @@ class SpotifyUser:
         left_ax,right_ax = axes
 
         left_ax.plot(inertias)
-        right_ax.plot(db_scores)
+        left_ax.set_title('Inertia')
 
-        fig.savefig('../results/inertia_dbscore.png', bbox_inches = 'tight', dpi=300)
+        right_ax.plot(db_scores)
+        right_ax.set_title('Davies Bouldin Score')
+
+        fig.savefig(f'../results/{self.user_id}inertia_dbscore.png', bbox_inches = 'tight', dpi=300)
+
+    
+
+    def plot_dendrogram(self,linked_data):
+        fig,ax = plt.subplots()
+        dn = dendrogram(linked_data, ax = ax, no_labels = True, above_threshold_color='black', color_threshold=0)
+        ax.set_title(f'Cluster Dendrogram for {self.user_id} Tracks', y = 1.05)
+        fig.savefig(f'../results/{self.user_id}_dendrogram.png', bbox_inches='tight', dpi = 500)
+
 
 
     def generate_uploadable_playlists(self, labelled_data):
@@ -268,7 +286,7 @@ class SpotifyUser:
         return uploadable_playlists
 
 
-    def add_cluster_playlists(self, cluster_playlists):
+    def add_cluster_playlists(self, cluster_playlists, cluster_algo = 'KMeans'):
         '''
         fully_establish_and_add_cluster_playlists(self, desired_algorithm = 'HC 8')
 
@@ -281,7 +299,7 @@ class SpotifyUser:
         '''
 
         for cluster_id, cluster_playlist in cluster_playlists.items():
-            new_name = f'KMeans {cluster_id}'
+            new_name = f'{cluster_algo} {cluster_id}'
             playlist_params = {'name':new_name}
             associated_tracks = cluster_playlist
             associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
