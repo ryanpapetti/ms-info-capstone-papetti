@@ -275,13 +275,28 @@ class SpotifyUser:
         ax.set_title(f'Cluster Dendrogram for {self.user_id} Tracks', y = 1.05)
         fig.savefig(f'../results/{self.user_id}_dendrogram.png', bbox_inches='tight', dpi = 500)
 
+    @staticmethod
+    def organize_by_centroid_distance(labelled_cluster_data):
+        cluster_data_centroids = labelled_cluster_data.groupby('Label').mean()
+        euclidean_distance_formula = lambda ser1, ser2: ((ser2 - ser1)**2).sum()
+        centroid_distances = []
+        for _, track_data in labelled_cluster_data.iterrows():
+            cluster_label = track_data['Label']
+            cluster_centroid = cluster_data_centroids.loc[cluster_label]
+            relevant_data = track_data.drop(['Label'])
+            calculated_distance = euclidean_distance_formula(relevant_data,cluster_centroid)
+            centroid_distances.append(calculated_distance)
+        labelled_cluster_data['Distance to Centroid'] = centroid_distances
+        return labelled_cluster_data.sort_values(by='Distance to Centroid')
+
 
 
     def generate_uploadable_playlists(self, labelled_data):
         uploadable_playlists = {}
 
         for label in set(labelled_data['Label']):
-            uploadable_playlists[label] = list(labelled_data[labelled_data['Label'] == label].index)
+            cluster_data = SpotifyUser.organize_by_centroid_distance(labelled_data[labelled_data['Label'] == label])
+            uploadable_playlists[label] = list(cluster_data.index)
 
         return uploadable_playlists
 
@@ -300,7 +315,7 @@ class SpotifyUser:
 
         for cluster_id, cluster_playlist in cluster_playlists.items():
             new_name = f'{cluster_algo} {cluster_id}'
-            playlist_params = {'name':new_name}
+            playlist_params = {'name':new_name, 'description': 'These are tracks organized by their distance to the cluster centroid. The higher the song appears on this playlist, the more "typical" it is for this cluster. What can you find?'}
             associated_tracks = cluster_playlist
             associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
 
