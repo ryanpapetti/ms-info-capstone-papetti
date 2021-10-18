@@ -9,3 +9,4 @@ scripts/__pycache__
 *.pyc
 .ipynb_checkpoints/
 scripts/spotify_user.py 
+scripts/spotify_user.py
