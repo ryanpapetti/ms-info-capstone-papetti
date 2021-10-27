@@ -1,6 +1,5 @@
 
 import logging, pandas as pd
-from numpy.linalg import norm
 from scipy.cluster.hierarchy import cut_tree
 from sklearn.cluster import KMeans
 
@@ -58,21 +57,21 @@ def main():
 
     normalized_data = SpotifyUser.normalize_prepped_data(ryan_prepped_data)
 
-    # explore_clusterings(ryan_user,normalized_data) #found kmeans to be 6 and agglomerative to be 9
+    explore_clusterings(ryan_user,normalized_data) #found kmeans to be 6 and agglomerative to be 9
 
-    kmeans_labelled_data = ryan_prepped_data.copy()
-    agglomerative_labelled_data = ryan_prepped_data.copy()
+    # kmeans_labelled_data = ryan_prepped_data.copy()
+    # agglomerative_labelled_data = ryan_prepped_data.copy()
 
-    kmeans_labels, agglomerative_labels = execute_clusterings(kmeans_number=6, agglomerative_number= 9, normalized_data = normalized_data)
+    # kmeans_labels, agglomerative_labels = execute_clusterings(kmeans_number=6, agglomerative_number= 9, normalized_data = normalized_data)
 
-    kmeans_labelled_data['Label'] = kmeans_labels
-    agglomerative_labelled_data['Label'] = agglomerative_labels
+    # kmeans_labelled_data['Label'] = kmeans_labels
+    # agglomerative_labelled_data['Label'] = agglomerative_labels
 
-    kmeans_uploadable_playlists = ryan_user.generate_uploadable_playlists(kmeans_labelled_data)
-    agglomerative_uploadable_playlists = ryan_user.generate_uploadable_playlists(agglomerative_labelled_data)
+    # kmeans_uploadable_playlists = ryan_user.generate_uploadable_playlists(kmeans_labelled_data)
+    # agglomerative_uploadable_playlists = ryan_user.generate_uploadable_playlists(agglomerative_labelled_data)
 
-    ryan_user.add_cluster_playlists(kmeans_uploadable_playlists)
-    ryan_user.add_cluster_playlists(agglomerative_uploadable_playlists, cluster_algo='Agglomerative')
+    # ryan_user.add_cluster_playlists(kmeans_uploadable_playlists)
+    # ryan_user.add_cluster_playlists(agglomerative_uploadable_playlists, cluster_algo='Agglomerative')
 
 
 

@@ -15,7 +15,7 @@ from track import Track
 
 
 class SpotifyUser:
-    def __init__(self, spotify_id, playlists = {}, contacter = None):
+    def __init__(self, spotify_id, playlists = {}, contacter = None, optional_display_id = ''):
         '''
         The SpotifyUser instance represents a particular Spotify user denoted by a Spotify_id and allows for API communication, storage of playlists, and clustering of tracks.
 
@@ -33,6 +33,7 @@ class SpotifyUser:
         self.user_id = spotify_id
         self.playlists = playlists
         self.contacter = contacter
+        self.optional_display_id = optional_display_id
         np.random.seed(420)
  
     
@@ -264,16 +265,17 @@ class SpotifyUser:
 
         right_ax.plot(db_scores)
         right_ax.set_title('Davies Bouldin Score')
-
-        fig.savefig(f'../results/{self.user_id}inertia_dbscore.png', bbox_inches = 'tight', dpi=300)
+        proper_id = self.user_id if not self.optional_display_id else self.optional_display_id 
+        fig.savefig(f'../results/{proper_id}inertia_dbscore.png', bbox_inches = 'tight', dpi=300)
 
     
 
     def plot_dendrogram(self,linked_data):
         fig,ax = plt.subplots()
+        proper_id = self.user_id if not self.optional_display_id else self.optional_display_id 
         dn = dendrogram(linked_data, ax = ax, no_labels = True, above_threshold_color='black', color_threshold=0)
-        ax.set_title(f'Cluster Dendrogram for {self.user_id} Tracks', y = 1.05)
-        fig.savefig(f'../results/{self.user_id}_dendrogram.png', bbox_inches='tight', dpi = 500)
+        ax.set_title(f'Cluster Dendrogram for {proper_id} Tracks', y = 1.05)
+        fig.savefig(f'../results/{proper_id}_dendrogram.png', bbox_inches='tight', dpi = 500)
 
     @staticmethod
     def organize_by_centroid_distance(labelled_cluster_data):
@@ -286,7 +288,7 @@ class SpotifyUser:
             relevant_data = track_data.drop(['Label'])
             calculated_distance = euclidean_distance_formula(relevant_data,cluster_centroid)
             centroid_distances.append(calculated_distance)
-        labelled_cluster_data['Distance to Centroid'] = centroid_distances
+        labelled_cluster_data.loc[:,'Distance to Centroid'] = centroid_distances
         return labelled_cluster_data.sort_values(by='Distance to Centroid')
 
 
@@ -314,7 +316,8 @@ class SpotifyUser:
         '''
 
         for cluster_id, cluster_playlist in cluster_playlists.items():
-            new_name = f'{cluster_algo} {cluster_id}'
+            id_to_add = self.user_id if not self.optional_display_id else self.optional_display_id
+            new_name = f'{id_to_add} {cluster_algo} {cluster_id}'
             playlist_params = {'name':new_name, 'description': 'These are tracks organized by their distance to the cluster centroid. The higher the song appears on this playlist, the more "typical" it is for this cluster. What can you find?'}
             associated_tracks = cluster_playlist
             associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]

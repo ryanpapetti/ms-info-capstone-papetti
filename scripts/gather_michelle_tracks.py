@@ -19,13 +19,18 @@ def gather_custom_tracks(desired_user_id,desired_playlist_ids_names):
 
 
 def main():
-    logging.basicConfig(filename='../logs/custom_tracks_data_collection.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
+    logging.basicConfig(filename='../logs/michelle_tracks_data_collection.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
 
-    top_50_custom_id = 'Top Hits Oct 17 2021'
-    top_50_playlist_ids = {('37i9dQZEVXbLp5XoPON0wI', 'Top 50 USA Oct 17 2021'), ('37i9dQZEVXbNG2KDcFcKOF', 'Top 50 Global Oct 17 2021')}
-
-
-    gather_custom_tracks(top_50_custom_id,top_50_playlist_ids)
+    michelle_custom_id = 'Michelle Pop and Rock Hits Oct 27 2021'
+    chill_pop = ('37i9dQZF1DX0MLFaUdXnjA', 'Chill Pop')
+    hot_hits_pop = ('37i9dQZF1DX0kbJZpiYdZl', 'Hot Hits USA')
+    indie_pop = ('37i9dQZF1DWWEcRhUVtL8n', 'Indie Pop')
+    classic_rock = ('37i9dQZF1DWXRqgorJj26U', 'Classic Rock')
+    bedroom_pop = ('37i9dQZF1DXcxvFzl58uP7', 'Bedroom Pop Spotify Oct 17 2021')
+    common_rock = ('37i9dQZF1DXcF6B6QPhFDv', 'Common Rock')
+    michelle_custom_playlists = {chill_pop, hot_hits_pop, indie_pop, classic_rock, bedroom_pop, common_rock}
+    
+    gather_custom_tracks(michelle_custom_id,michelle_custom_playlists)
 
 
 

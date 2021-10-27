@@ -21,11 +21,11 @@ def gather_custom_tracks(desired_user_id,desired_playlist_ids_names):
 def main():
     logging.basicConfig(filename='../logs/custom_tracks_data_collection.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
 
-    top_50_custom_id = 'Top Hits Oct 17 2021'
-    top_50_playlist_ids = {('37i9dQZEVXbLp5XoPON0wI', 'Top 50 USA Oct 17 2021'), ('37i9dQZEVXbNG2KDcFcKOF', 'Top 50 Global Oct 17 2021')}
+    bedroom_pop_custom_id = 'Top Bedroom Pop Hits Oct 27 2021'
+    top_bedroom_pop_playlist_ids = {('37i9dQZF1DXcxvFzl58uP7', 'Bedroom Pop Spotify Oct 17 2021')}
 
-
-    gather_custom_tracks(top_50_custom_id,top_50_playlist_ids)
+    
+    gather_custom_tracks(bedroom_pop_custom_id,top_bedroom_pop_playlist_ids)
 
 
 
