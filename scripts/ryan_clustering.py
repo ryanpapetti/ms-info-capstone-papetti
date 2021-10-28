@@ -57,15 +57,24 @@ def main():
 
     normalized_data = SpotifyUser.normalize_prepped_data(ryan_prepped_data)
 
-    explore_clusterings(ryan_user,normalized_data) #found kmeans to be 6 and agglomerative to be 9
+    # explore_clusterings(ryan_user,normalized_data) #found kmeans to be 6 and agglomerative to be 9
 
-    # kmeans_labelled_data = ryan_prepped_data.copy()
-    # agglomerative_labelled_data = ryan_prepped_data.copy()
+    kmeans_labelled_data = ryan_prepped_data.copy()
+    agglomerative_labelled_data = ryan_prepped_data.copy()
 
-    # kmeans_labels, agglomerative_labels = execute_clusterings(kmeans_number=6, agglomerative_number= 9, normalized_data = normalized_data)
-
-    # kmeans_labelled_data['Label'] = kmeans_labels
-    # agglomerative_labelled_data['Label'] = agglomerative_labels
+    kmeans_labels, agglomerative_labels = execute_clusterings(kmeans_number=6, agglomerative_number= 9, normalized_data = normalized_data)
+    logging.info('Executed clusterings')
+    kmeans_labelled_data['Label'] = kmeans_labels
+    agglomerative_labelled_data['Label'] = agglomerative_labels
+    logging.info('beginning data visualization')
+    normalized_kmeans_data = pd.DataFrame(normalized_data, columns = ryan_prepped_data.columns)
+    normalized_kmeans_data['Label'] = kmeans_labels
+    normalized_agglomerative_data = normalized_kmeans_data.copy()
+    normalized_agglomerative_data['Label'] = agglomerative_labels
+    kmeans_centroids = SpotifyUser.collect_centroids(normalized_kmeans_data)
+    agglomerative_centroids = SpotifyUser.collect_centroids(normalized_agglomerative_data)
+    ryan_user.visualize_cluster_centroids_data(kmeans_centroids,'KMeans')
+    ryan_user.visualize_cluster_centroids_data(agglomerative_centroids,'Agglomerative')
 
     # kmeans_uploadable_playlists = ryan_user.generate_uploadable_playlists(kmeans_labelled_data)
     # agglomerative_uploadable_playlists = ryan_user.generate_uploadable_playlists(agglomerative_labelled_data)

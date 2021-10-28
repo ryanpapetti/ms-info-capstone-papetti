@@ -7,6 +7,7 @@ This script hopefully aims to control the User class that can hold playlists, et
 
 '''
 import json, logging, pandas as pd, numpy as np, matplotlib.pyplot as plt
+from math import pi
 from sklearn import preprocessing, metrics
 from sklearn.cluster import KMeans
 from scipy.cluster.hierarchy import dendrogram, linkage, cut_tree
@@ -279,7 +280,7 @@ class SpotifyUser:
 
     @staticmethod
     def organize_by_centroid_distance(labelled_cluster_data):
-        cluster_data_centroids = labelled_cluster_data.groupby('Label').mean()
+        cluster_data_centroids = SpotifyUser.collect_centroids(labelled_cluster_data)
         euclidean_distance_formula = lambda ser1, ser2: ((ser2 - ser1)**2).sum()
         centroid_distances = []
         for _, track_data in labelled_cluster_data.iterrows():
@@ -291,6 +292,92 @@ class SpotifyUser:
         labelled_cluster_data.loc[:,'Distance to Centroid'] = centroid_distances
         return labelled_cluster_data.sort_values(by='Distance to Centroid')
 
+
+    @staticmethod
+    def collect_centroids(labelled_cluster_data):
+        return labelled_cluster_data.groupby('Label').mean()
+
+
+
+    def create_centroid_ax(self,centroid,ax):
+        assert isinstance(centroid,pd.Series)
+        plottable_features = [
+            "danceability",
+            "energy",
+            "valence",
+            "acousticness",
+            "instrumentalness"]
+        centroid = centroid[plottable_features]
+        ax_title = f'Centroid Chart for Cluster {centroid.name}'
+        num_variables = len(centroid)
+        plottable_values = list(centroid.values)
+        plottable_values.append(plottable_values[0])
+        angles = [n/float(num_variables) * 2 * pi for n in range(num_variables)]
+        angles.append(angles[0])
+        #ax.set_xticks(angles[:-1],centroid.index,color = 'grey', size = 8)
+        ax.set_xticks(angles[:-1])
+
+        labels = [val[0] for val in centroid.index]
+
+        ax.set_xticklabels(labels, color = 'grey', size = 4.5)
+        ax.set_rlabel_position(0)
+        ax.set_yticks([])
+        ax.set_yticklabels([], size = 8, color = 'grey')
+        ax.tick_params(axis = 'both', which = 'both', color = 'grey', pad = -5.5)
+        # old_title = 'Cluster ' + str(centroid.name)
+        ax.set_title(ax_title, size = 'xx-small', pad = 10) #got rid of + 1
+        # ax.set_ylim(0,0.45) #to see some of the smaller trends
+
+        centroid_color = (centroid['danceability'], centroid['energy'], centroid['valence'])
+
+        ax.plot(angles,plottable_values, linewidth=1, linestyle='solid', color = centroid_color)
+        ax.fill(angles, plottable_values, color = centroid_color, alpha=0.6)
+        return ax
+
+    def visualize_cluster_centroids_data(self, centroid_df, algorithm = 'Agglomerative', save_plot = True):
+        plottable_data = centroid_df.copy()
+        cluster_num = len(plottable_data.index)
+        logging.info('Finding size of clusters')
+
+        #now I need to find the number of plots to make. The answer is the same as the number of clusters
+        rows = cluster_num // 2 + bool(cluster_num % 2)
+        logging.info(f'Found number of rows: {rows}')
+        logging.info('Attempting to create subplots')
+        fig, axes = plt.subplots(rows,2, subplot_kw={'projection': 'polar'}, dpi = 1000)
+
+        #I want each axes to plot the proper plot. There is no natural order. Cycle through each axes and plot only one row worth of data at a time
+        #the packaging of axes makes enumerate not feasible
+        cluster_to_plot = 0
+        for sub_ax in axes:
+            #each ax here is a collect
+            for ax in sub_ax:
+                try:
+                    data = plottable_data.iloc[cluster_to_plot]
+                    ax = self.create_centroid_ax(data,ax) #change to have kwargs
+                    cluster_to_plot += 1
+                except IndexError:
+                
+                    ax.set_axis_off()
+                #I decided to incorporate a makeshift legend and add bottom text
+                #make a list of the text 
+                #legend_text = 'Key:\n\nA: Applied Medicinal\nF: Flower\nV: Vape\nC: Concentrate\nE: Edible\nP: Preroll'
+                #now add the text
+                #ax.text(0.2,0.63,s=legend_text, transform = ax.transAxes, fontsize = 6, color = 'black', verticalalignment = 'center', horizontalalignment = 'left')
+
+                #add bottom text
+                # bottom_text = 'Created by Ryan Papetti for 4Front Ventures'
+                # ax.text(-0.3,-0.3,s = bottom_text, transform = ax.transAxes, fontsize = 4, color = 'gray')
+
+
+        #fig.tight_layout(pad = 1.3)
+        appropriate_label = self.user_id if not self.optional_display_id else self.optional_display_id
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95]) #attempt to make space
+        fig.suptitle('Audio Features Centroids of {} Using {} On {} Clusters'.format(appropriate_label,algorithm,cluster_num), size = 11)
+
+        if save_plot:
+            fig.savefig('../results/Audio Features Centroids of {} Using {} On {} Clusters.png'.format(appropriate_label,algorithm,cluster_num), bbox_inches = 'tight', dpi = 1000)
+
+        #kwargs?
 
 
     def generate_uploadable_playlists(self, labelled_data):
