@@ -1,5 +1,5 @@
 
-import requests, json, time, logging
+import requests, json, time, logging, os
 
 class Contacter:
     def __init__(self): #IF DEPRECATED, CONTACTER MAY BE ACCESS TOKEN UNIQUE
@@ -19,12 +19,15 @@ class Contacter:
         
     def gather_auth_hash(self, filepath):
         logging.info(f'Passed filepath: {filepath}')
-        try:
-            with open(filepath) as reader:
-                authorization_hash = reader.readline().strip()
-            self.auth_hash = authorization_hash 
-        except FileNotFoundError:
-            raise FileNotFoundError('We cannot find the auth hash file. You may need to run the bash script first')
+        if filepath.upper() != 'ENVIRONMENT':
+            try:
+                with open(filepath) as reader:
+                    authorization_hash = reader.readline().strip()
+                self.auth_hash = authorization_hash 
+            except FileNotFoundError:
+                raise FileNotFoundError('We cannot find the auth hash file. You may need to run the bash script first')
+        else:
+            self.auth_header = os.environ.get('AUTH_HASH')
 
 
 
