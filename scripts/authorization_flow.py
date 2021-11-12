@@ -28,7 +28,7 @@ def geturl(client_id):
 
     redirect_uri = 'http://localhost/callback' #this must be the same in your Spotify app
 
-    scope = 'ugc-image-upload user-read-recently-played user-read-playback-state user-top-read app-remote-control playlist-modify-public user-modify-playback-state playlist-modify-private user-follow-modify user-read-currently-playing user-follow-read user-library-modify user-read-playback-position playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative streaming' #it's likely not all scopes are needed. Tutorials recommend all for  now
+    scope = 'user-read-recently-played user-top-read  playlist-modify-public playlist-modify-private user-library-modify playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative' #it's likely not all scopes are needed. Tutorials recommend all for  now
     
     url = f'https://accounts.spotify.com/authorize?client_id={client_id}&response_type=code&redirect_uri={urllib.parse.quote(redirect_uri)}&scope={urllib.parse.quote(scope)}'
 

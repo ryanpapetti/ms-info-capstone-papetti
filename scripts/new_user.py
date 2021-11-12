@@ -11,8 +11,8 @@ from math import pi
 from sklearn import preprocessing, metrics
 from sklearn.cluster import KMeans
 from scipy.cluster.hierarchy import dendrogram, linkage, cut_tree
-from playlist import Playlist
-from track import Track
+from .playlist import Playlist
+from .track import Track
 
 
 class SpotifyUser:
@@ -85,7 +85,7 @@ class SpotifyUser:
 
 
     
-    def get_all_playlist_information(self, custom_playlist_ids = None):
+    def get_all_playlist_information(self, custom_playlist_ids = None, save_file_flag = True):
         '''
         get_all_playlist_information(self)
 
@@ -105,7 +105,7 @@ class SpotifyUser:
             #make a playlist instance and add it to the user's playlist dict
             playlist_id,playlist_name = playlist_info
             self.playlists[playlist_id] = Playlist(playlist_id,playlist_name)
-            self.playlists[playlist_id].retrieve_playlist_data(self.contacter, save_file = True)
+            self.playlists[playlist_id].retrieve_playlist_data(self.contacter, save_file = save_file_flag)
 
 
 
@@ -168,6 +168,18 @@ class SpotifyUser:
         with open(filepath) as reader:
             return json.load(reader)
 
+    
+
+    def collect_data(self, custom_playlist_ids = None, save_file_flag = False):
+        logging.info('Gathering all playlist info')
+        self.get_all_playlist_information(custom_playlist_ids=custom_playlist_ids, save_file_flag=save_file_flag)
+        for playlist in self.playlists.values():
+            playlist.convert_raw_track_items()
+        logging.info('Converted all raw track items')
+        specified_tracks = self.aggregate_track_ids_across_playlists()
+        aggregated_audio_features_data = self.gather_audio_features_data_from_specified_tracks(specified_tracks)
+        return aggregated_audio_features_data
+
    
 
     def collect_and_store_data(self, final_storage_path, custom_playlist_ids = None): #THIS MAY BE EXPANDED UPON SIGNIFICANTLY
@@ -182,13 +194,7 @@ class SpotifyUser:
 
         - retrieves all audio features for all tracks
         '''
-        logging.info('Gathering all playlist info')
-        self.get_all_playlist_information(custom_playlist_ids=custom_playlist_ids)
-        for playlist in self.playlists.values():
-            playlist.convert_raw_track_items()
-        logging.info('Converted all raw track items')
-        specified_tracks = self.aggregate_track_ids_across_playlists()
-        aggregated_audio_features_data = self.gather_audio_features_data_from_specified_tracks(specified_tracks)
+        aggregated_audio_features_data = self.collect_data(custom_playlist_ids)
 
         self.save_audio_features_data(aggregated_audio_features_data,final_storage_path)
 
@@ -388,6 +394,7 @@ class SpotifyUser:
             uploadable_playlists[label] = list(cluster_data.index)
 
         return uploadable_playlists
+
 
 
     def add_cluster_playlists(self, cluster_playlists, cluster_algo = 'KMeans'):

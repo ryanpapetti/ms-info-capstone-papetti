@@ -1,5 +1,5 @@
 import json, logging
-from track import Track
+from .track import Track
 
 class Playlist:
     def __init__(self, playlist_id, name, owner = None, description = None, snapshot_id = None):

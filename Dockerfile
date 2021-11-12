@@ -1,0 +1,30 @@
+# FROM ubuntu:18.04
+FROM continuumio/miniconda3
+
+WORKDIR /app
+
+# Make RUN commands use `bash --login`:
+SHELL ["/bin/bash", "--login", "-c"]
+
+
+#  Create the environment:
+COPY environment.yml .
+RUN conda env create -f environment.yml
+
+# Initialize conda in bash config fiiles:
+RUN conda init bash
+
+# Activate the environment, and make sure it's activated:
+RUN echo "conda activate capstone" > ~/.bashrc
+RUN echo "Make sure scikit learn is installed:"
+RUN python -c "from sklearn.cluster import KMeans; print(KMeans(5))"
+
+# The code to run when container is started:
+
+COPY scripts/ scripts/
+COPY credentials/ credentials/
+COPY "data/1232063482_tracks.json" "data/1232063482_tracks.json"
+RUN mkdir results
+RUN cd scripts
+# COPY run.py .
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "capstone", "python", "ryan_clustering.py"]

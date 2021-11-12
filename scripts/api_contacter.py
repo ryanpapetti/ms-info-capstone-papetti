@@ -2,7 +2,7 @@
 import requests, json, time, logging, os
 
 class Contacter:
-    def __init__(self): #IF DEPRECATED, CONTACTER MAY BE ACCESS TOKEN UNIQUE
+    def __init__(self, auth_hash = None, accessToken = None): #IF DEPRECATED, CONTACTER MAY BE ACCESS TOKEN UNIQUE
 
         self.session = requests.session()
         self.auth_hash = None 
@@ -31,6 +31,13 @@ class Contacter:
 
 
 
+    def formAccessHeaderfromToken(self, passable_token):
+        if not passable_token:
+            assert self.accessToken
+            self.accessHeader = {'Authorization': f'Bearer {self.accessToken}'}
+        else:
+            self.accessHeader = {'Authorization': f'Bearer {passable_token}'}
+
 
     def refreshTheToken(self,refreshToken, dump_filepath = None):
         assert self.auth_header
@@ -56,7 +63,7 @@ class Contacter:
             with open(dump_filepath, 'w') as writer:
                 json.dump(spotifyState, writer)
         self.accessToken = spotifyState['accessToken']
-        self.accessHeader = {'Authorization': f'Bearer {self.accessToken}'}
+        self.formAccessHeaderfromToken()
     
 
     def contact_api(self, endpoint, additional_request_parameters = None, contact_type = 'get', data_params = None):

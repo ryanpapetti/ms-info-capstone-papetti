@@ -1,0 +1,8 @@
+FROM ubuntu:18.04
+# FROM continuumio/miniconda3
+
+# WORKDIR /app
+COPY scripts/bash_args.sh .
+RUN ls -l
+RUN chmod +x bash_args.sh
+ENTRYPOINT ["/bash_args.sh"]
