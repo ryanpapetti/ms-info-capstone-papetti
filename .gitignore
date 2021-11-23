@@ -9,3 +9,8 @@ scripts/__pycache__
 *.pyc
 .ipynb_checkpoints/
 scripts/spotify_user.py
+writing/*.log
+writing/*.bcf
+writing/*.aux
+writing/*.xml
+writing/*.toc
