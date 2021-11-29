@@ -3,8 +3,11 @@
     <head>
         
         <title>Radial Web App</title>
-
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- Materialize -->
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- Compiled and minified CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
@@ -22,9 +25,6 @@
         
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
-
-        <!-- jQuery library -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- MathJax for LaTeX -->
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 
@@ -85,27 +85,65 @@
                 <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">Let's Pick One</a>
                 <p class="text-right">3/4</p>  
             </div>
-        
+ 
+            
+            
+            <div class="jumbotron jumbotron-fluid text-left">
+                <h2>Now Your Clustering Types</h2>
+                <p>Once the data are structured accordingly, it is time to choose a clustering algorithm to group your data. We have two options for you</p>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <h4>Simple Clustering</h4>
+                            <p>
+                                Suitable especially for total track size (&lt; 250). Produces five groups of tracks.
+                            </p>
+
+                        </div>
+                        <div class="col-xs-4">
+                            <h4>Standard Clustering</h4>
+                            <p>
+                                Suitable for all total track sizes. Produces nine groups of tracks.
+                            </p>
+
+                        </div>
+
+                        <div class="col-xs-4">
+                            <h4>Deep Clustering</h4>
+                            <p>
+                                Suitable especially for large track collections (&gt; 1000) tracks. Produces thirteen groups of tracks. 
+                            </p>
+
+                        </div>
+                    </div>
+
+                </div>
+                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">Let's Pick One</a>
+                <p class="text-right">4/5</p>  
+            </div>
+
+
+
+
+
+
         
             <div class="jumbotron jumbotron-fluid text-left">
                 <h2>Customize Your Clustering</h2>
                 <p>Radial makes clustering fun by leveraging your Spotify data to group your tracks based on their structural similarity</p>
-                <!-- <div class="u-expanded-width u-form u-form-1">
-                    <form action="{{url_for('generate_text')}}" method="POST" class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" style="padding: 10px" source="custom" name="form">
-                        <div class="u-form-group u-form-message">
-                            <label for="message-4af4" class="u-form-control-hidden u-label">Message</label>
-                            <textarea id="text_gen_input" placeholder="Write your story here..." rows="4" cols="50" id="prompt" name="prompt" class="u-border-1 u-border-grey-30 u-input u-input-rectangle u-white" required=""></textarea>
+                <div class="container">
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Algorithm
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Agglomerative Hierarchical</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">KMeans</a></li>
+                        </ul>
                         </div>
-                        <div class="u-align-left u-form-group u-form-submit">
-                            <a id="text_gen_button" href="#" class="u-btn u-btn-round u-btn-submit u-button-style u-custom-color-1 u-radius-6 u-btn-1">Generate<br></a>
-                        </div>
-                        <div class="u-form-send-message u-form-send-success"> Thank you! Your message has been sent. </div>
-                        <div class="u-form-send-error u-form-send-message"> Unable to send your message. Please fix errors then try again. </div>
-                        <input type="hidden" value="" name="recaptchaResponse">
-                    </form>
-                </div> -->
+                </div>
                 <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">See your results</a>
-                <p class="text-right">4/4</p>  
+                <p class="text-right">5/5</p>  
             </div>        
         
         
