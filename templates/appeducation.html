@@ -52,8 +52,8 @@
         
             <div class="jumbotron jumbotron-fluid text-left">
                 <h2>Defining Track Similarity</h2>
-                <p>Radial makes clustering fun by leveraging your Spotify data to group your tracks based on their structural similarity</p>
-                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">How So?</a>
+                <p>How do we decide how two tracks are similar? We take collected track metadata from Spotify, scale them into a usable 0-1 range, and then use the standard distance formula. </p>
+                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">What next?</a>
                 <p class="text-right">2/4</p>  
             </div>
 
@@ -62,8 +62,27 @@
 
             <div class="jumbotron jumbotron-fluid text-left">
                 <h2>Meet Your Clusterers</h2>
-                <p>Radial makes clustering fun by leveraging your Spotify data to group your tracks based on their structural similarity</p>
-                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">How So?</a>
+                <p>Once the data are structured accordingly, it is time to choose a clustering algorithm to group your data. We have two options for you</p>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4>Agglomerative Hierarchical</h4>
+                            <p>
+                                A simple one comparison at a time. Utilizes "complete" linkage for maximum robustness in grouping
+                            </p>
+
+                        </div>
+                        <div class="col-xs-6">
+                            <h4>KMeans</h4>
+                            <p>
+                                Leverage the power of KMeans to group your tracks around common centroids. Traditional clustering approach
+                            </p>
+
+                        </div>
+                    </div>
+
+                </div>
+                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">Let's Pick One</a>
                 <p class="text-right">3/4</p>  
             </div>
         
