@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, url_for
 import requests
 from urllib.parse import quote
 
@@ -45,10 +45,27 @@ auth_query_parameters = {
 
 @app.route("/")
 def index():
-    # Auth Step 1: Authorization
-    url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
-    auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
-    return redirect(auth_url)
+    return render_template('homepage.html')
+
+@app.route("/appeducation")
+def appeducation():
+    return render_template('appeducation.html')
+
+# @app.route("/")
+# def index():
+#     # Auth Step 1: Authorization
+#     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
+#     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
+#     return redirect(auth_url)
+
+
+@app.route('/cluster_tracks', methods=['POST'])
+def cluster_tracks():
+    algorithm = request.form['algorithm']
+    desired_clusters = request.form['clusters']
+
+
+
 
 
 @app.route("/callback")
