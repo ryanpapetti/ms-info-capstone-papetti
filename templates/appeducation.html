@@ -27,9 +27,9 @@
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
         <!-- MathJax for LaTeX -->
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
 
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script>
+        <!-- <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script> -->
         
     </head>
 
@@ -135,30 +135,28 @@
 
 
                 <div class="container">
-                    <div class = "row">
                         <form class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" action="{{url_for('clustertracks')}}" method="post">
 
-                            <div class="form-group">
+                            <div class="mb-3 row">
                                 <label for="algorithm">Choose Your Algorithm</label>
-                                <select class="form-control" id="algorithm">
+                                <select class="form-select mb-3 form-control" id="algorithm">
                                   <option selected>Desired Clusterer</option>
                                   <option>Agglomerative Hierarchical</option>
                                   <option>KMeans</option>
-                            </div>
-                            
-        
-                            <div class="form-group">
-                                <label for="desired_clusters">Choose Your Cluster Size</label>
-                                <select class="form-control" id="desired_clusters">
-                                  <option selected>Desired Clusters</option>
-                                  <option>Simple Clustering (5)</option>
-                                  <option>Standard Clustering (9)</option>
-                                  <option>Deep Clustering (13)</option>
                                 </select>
-                            </div>
-            
+                                  
+                                  
+                                  <label for="desired_clusters">Choose Your Cluster Size</label>
+                                  <select class="form-select form-control mb-3" id="desired_clusters">
+                                      <option selected>Desired Clusters</option>
+                                      <option>Simple Clustering (5)</option>
+                                      <option>Standard Clustering (9)</option>
+                                      <option>Deep Clustering (13)</option>
+                                    </select>
+                                </div>
+                                
+                            <button type="submit" class="btn btn-primary">See your results</button>
                         </form>
-                    </div>
                 </div>
 
                
@@ -181,10 +179,11 @@
                         </ul>
                         </div>
                 </div> -->
-                <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">See your results</a>
+                <!-- <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">See your results</a> -->
                 <p class="text-right">5/5</p>  
             </div>        
         
+            
         
             </div>
 
