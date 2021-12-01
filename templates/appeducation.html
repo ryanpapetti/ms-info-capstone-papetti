@@ -134,35 +134,34 @@
                 <p>Radial makes clustering fun by leveraging your Spotify data to group your tracks based on their structural similarity</p>
 
 
+                <div class="container">
+                    <div class = "row">
+                        <form class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" action="{{url_for('clustertracks')}}" method="post">
 
-                <form>
+                            <div class="form-group">
+                                <label for="algorithm">Choose Your Algorithm</label>
+                                <select class="form-control" id="algorithm">
+                                  <option selected>Desired Clusterer</option>
+                                  <option>Agglomerative Hierarchical</option>
+                                  <option>KMeans</option>
+                            </div>
+                            
+        
+                            <div class="form-group">
+                                <label for="desired_clusters">Choose Your Cluster Size</label>
+                                <select class="form-control" id="desired_clusters">
+                                  <option selected>Desired Clusters</option>
+                                  <option>Simple Clustering (5)</option>
+                                  <option>Standard Clustering (9)</option>
+                                  <option>Deep Clustering (13)</option>
+                                </select>
+                            </div>
+            
+                        </form>
+                    </div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="exampleFormControlSelect1">Example select</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option selected>Desired Clusterer</option>
-                          <option>Agglomerative Hierarchical</option>
-                          <option>KMeans</option>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="exampleFormControlSelect1">Example select</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option>Agglomerative Hierarchical</option>
-                          <option>KMeans</option>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="exampleFormControlSelect2">Example select</label>
-                        <select class="form-control" id="exampleFormControlSelect2">
-                          <option selected>Desired Clusters</option>
-                          <option>Simple Clustering (5)</option>
-                          <option>Standard Clustering (9)</option>
-                          <option>Deep Clustering (13)</option>
-                        </select>
-                    </div>
-    
-                </form>
+               
 
 
 

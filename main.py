@@ -59,17 +59,23 @@ def appeducation():
 #     return redirect(auth_url)
 
 
-@app.route('/cluster_tracks', methods=['POST'])
-def cluster_tracks():
-    algorithm = request.form['algorithm']
-    desired_clusters = request.form['clusters']
+@app.route('/clustertracks', methods=['POST'])
+def clustertracks():
+    
+    algorithm = request.form.get('algorithm')
+    desired_clusters = request.form.get('clusters')
+
+    # Auth Step 1: Authorization
+    url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
+    auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
+    return redirect(auth_url)
 
 
 
 
 
 @app.route("/callback")
-def callback():
+def callback(algorithm = None, desired_clusters = None):
     # Auth Step 4: Requests refresh and access tokens
     auth_token = request.args['code']
     code_payload = {
@@ -111,8 +117,8 @@ def callback():
 
     #THIS IS WHERE I NEED TO GATHER THE USER'S PREFERENCES SOMEHOW. I WILL HARDCODE FOR NOW
 
-    chosen_algorithm = 'kmeans'
-    chosen_clusters = 5
+    chosen_algorithm = algorithm
+    chosen_clusters = desired_clusters
 
 
     labelled_data = execute_clustering(chosen_algorithm,chosen_clusters,user_prepared_data)
