@@ -1,4 +1,4 @@
-import json, time
+import json, time, re
 from flask import Flask, request, redirect, render_template
 import requests
 from urllib.parse import quote
@@ -8,6 +8,10 @@ from sklearn.cluster import KMeans
 
 from scripts import SpotifyUser, Contacter
 
+
+def gather_cluster_size_from_submission(submission):
+    pattern = r'\d+'
+    return int(re.findall(pattern, submission)[0])
 
 
 def prime_user_from_access_token(user_id,accessToken):

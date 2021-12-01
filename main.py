@@ -4,7 +4,7 @@ import requests
 from urllib.parse import quote
 
 from scripts import SpotifyUser, Contacter
-from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering
+from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission
 
 # Authentication Steps, paramaters, and responses are defined at https://developer.spotify.com/web-api/authorization-guide/
 # Visit this url to see all the steps, parameters, and expected response.
@@ -42,6 +42,9 @@ auth_query_parameters = {
     "client_id": CLIENT_ID
 }
 
+VALID_AUTH_HEADER = {}
+VALID_USER = None
+
 
 @app.route("/")
 def index():
@@ -51,31 +54,17 @@ def index():
 def appeducation():
     return render_template('appeducation.html')
 
-# @app.route("/")
-# def index():
-#     # Auth Step 1: Authorization
-#     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
-#     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
-#     return redirect(auth_url)
 
-
-@app.route('/clustertracks', methods=['POST'])
-def clustertracks():
-    
-    algorithm = request.form.get('algorithm')
-    desired_clusters = request.form.get('clusters')
-
+@app.route("/authenticateuser")
+def authenticateuser():
     # Auth Step 1: Authorization
     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
     return redirect(auth_url)
 
 
-
-
-
 @app.route("/callback")
-def callback(algorithm = None, desired_clusters = None):
+def callback():
     # Auth Step 4: Requests refresh and access tokens
     auth_token = request.args['code']
     code_payload = {
@@ -92,16 +81,13 @@ def callback(algorithm = None, desired_clusters = None):
     response_data = json.loads(post_request.text)
     print(response_data)
     access_token = response_data["access_token"]
-    refresh_token = response_data["refresh_token"]
-    token_type = response_data["token_type"]
-    expires_in = response_data["expires_in"]
+    # refresh_token = response_data["refresh_token"]
+    # token_type = response_data["token_type"]
+    # expires_in = response_data["expires_in"]
 
     # Auth Step 6: Use the access token to access Spotify API
     authorization_header = {"Authorization": "Bearer {}".format(access_token)}
-
-
-    #THIS IS WHERE THINGS COULD AND SHOULD BE UPDATED FOR FLASK
-
+    VALID_AUTH_HEADER = authorization_header
 
     # Get profile data
     user_profile_api_endpoint = "{}/me".format(SPOTIFY_API_URL)
@@ -111,28 +97,50 @@ def callback(algorithm = None, desired_clusters = None):
 
     #make user 
     user = prime_user_from_access_token(user_id, access_token)
+    VALID_USER = user
+    print('Set user')
+    print(VALID_USER)
+
+    return redirect(url_for('appeducation'))
+
+
+
+@app.route('/clustertracks', methods=['POST'])
+def clustertracks():
+    algorithm = request.form.get('algorithm')
+    desired_clusters = request.form.get('desired_clusters')
+
+    print('algorithm', algorithm)
+    print('clusters', desired_clusters)
+
+    
+
+
+    # Get profile data
+    # user_profile_api_endpoint = "{}/me".format(SPOTIFY_API_URL)
+    # profile_response = requests.get(user_profile_api_endpoint, headers=VALID_AUTH_HEADER)
+    # profile_data = json.loads(profile_response.text)
 
     #gather data
-    user_prepared_data = prepare_data(user)
+    print('Preparing data')
+    print(VALID_USER)
+    user_prepared_data = prepare_data(VALID_USER)
 
-    #THIS IS WHERE I NEED TO GATHER THE USER'S PREFERENCES SOMEHOW. I WILL HARDCODE FOR NOW
 
     chosen_algorithm = algorithm
-    chosen_clusters = desired_clusters
+    chosen_clusters = gather_cluster_size_from_submission(desired_clusters)
 
 
     labelled_data = execute_clustering(chosen_algorithm,chosen_clusters,user_prepared_data)
-    prepared_playlists = prepare_playlists(user,labelled_data)     
-
-
-    # Get user playlist data
-    playlist_api_endpoint = "{}/playlists".format(profile_data["href"])
-    playlists_response = requests.get(playlist_api_endpoint, headers=authorization_header)
-    playlist_data = json.loads(playlists_response.text)
+    prepared_playlists = prepare_playlists(VALID_USER,labelled_data)     
 
     # Combine profile and playlist data to display
-    display_arr = playlist_data['items']
-    return render_template("index.html", sorted_array=display_arr, stringified_playlists = json.dumps(prepared_playlists))
+    return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
+
+
+
+
+
 
 
 if __name__ == "__main__":
