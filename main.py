@@ -1,8 +1,9 @@
 import json
-from flask import Flask, request, redirect, render_template, url_for
+from flask import Flask, request, redirect, render_template, url_for, session
 import requests
 from urllib.parse import quote
 
+from flask_session import Session
 from scripts import SpotifyUser, Contacter
 from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission
 
@@ -11,7 +12,9 @@ from utils import prime_user_from_access_token, prepare_playlists, prepare_data,
 
 
 app = Flask(__name__)
-
+app.config['SESSION_TYPE'] = 'filesystem'
+app.secret_key = 'test123test123'
+Session(app)
 #  Client Keys
 CLIENT_ID = "7ec4038de1184e2fb0a1caf13352e295"
 CLIENT_SECRET = '18fa59e0d4614c139f4c6102f5bc965a'
@@ -42,8 +45,8 @@ auth_query_parameters = {
     "client_id": CLIENT_ID
 }
 
-VALID_AUTH_HEADER = {}
-VALID_USER = None
+# session['VALID_AUTH_HEADER'] = {}
+# session['VALID_USER'] = None
 
 
 @app.route("/")
@@ -87,7 +90,7 @@ def callback():
 
     # Auth Step 6: Use the access token to access Spotify API
     authorization_header = {"Authorization": "Bearer {}".format(access_token)}
-    VALID_AUTH_HEADER = authorization_header
+    session['VALID_AUTH_HEADER'] = authorization_header
 
     # Get profile data
     user_profile_api_endpoint = "{}/me".format(SPOTIFY_API_URL)
@@ -97,9 +100,9 @@ def callback():
 
     #make user 
     user = prime_user_from_access_token(user_id, access_token)
-    VALID_USER = user
+    session['VALID_USER'] = user
     print('Set user')
-    print(VALID_USER)
+    print(session['VALID_USER'])
 
     return redirect(url_for('appeducation'))
 
@@ -113,7 +116,8 @@ def clustertracks():
     print('algorithm', algorithm)
     print('clusters', desired_clusters)
 
-    
+    print('Auth header')
+    print(session['VALID_AUTH_HEADER'])
 
 
     # Get profile data
@@ -123,25 +127,39 @@ def clustertracks():
 
     #gather data
     print('Preparing data')
-    print(VALID_USER)
-    user_prepared_data = prepare_data(VALID_USER)
-
-
+    print(session['VALID_USER'])
     chosen_algorithm = algorithm
     chosen_clusters = gather_cluster_size_from_submission(desired_clusters)
+    print('cluster size determined')
+
+
+    print('preparing data')
+    user_prepared_data = prepare_data(session['VALID_USER'])
+
+    print('data prepared')
+    print(user_prepared_data)
+
 
 
     labelled_data = execute_clustering(chosen_algorithm,chosen_clusters,user_prepared_data)
-    prepared_playlists = prepare_playlists(VALID_USER,labelled_data)     
+
+    print('data clustered')
+    prepared_playlists = prepare_playlists(session['VALID_USER'],labelled_data)
+    session['PREPARED_PLAYLISTS'] = prepared_playlists     
 
     # Combine profile and playlist data to display
+    # return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
+    return redirect(url_for('clusteringresults', prepared_playlists = prepared_playlists))
+
+
+@app.route("/clusteringresults")
+def clusteringresults():
+    prepared_playlists = session['PREPARED_PLAYLISTS']
     return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
 
 
 
 
 
-
-
 if __name__ == "__main__":
-    app.run(debug=True, port=PORT)
+    app.run( port=PORT)

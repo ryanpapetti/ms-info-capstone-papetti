@@ -14,3 +14,4 @@ writing/*.bcf
 writing/*.aux
 writing/*.xml
 writing/*.toc
+flask_session/

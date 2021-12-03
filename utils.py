@@ -14,6 +14,7 @@ def gather_cluster_size_from_submission(submission):
     return int(re.findall(pattern, submission)[0])
 
 
+
 def prime_user_from_access_token(user_id,accessToken):
 
     user_contacter = Contacter()
