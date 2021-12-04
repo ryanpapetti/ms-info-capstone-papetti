@@ -1,17 +1,76 @@
-<doctype html>
-    <html>
-        <head>
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        
+        <title>Your Clustering Results</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+        
+        <!-- Materialize -->
+        
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-        </head>
+        <!-- Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <!-- Animate.CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        
+    </head>
+
         <body>
-            <h2>Below is OLD stuff</h2>
-            {% for item in sorted_array%}
-            <p> {{ item }} </p>
-            {% endfor %}
+            <h2>Below is DISPLAYABLE stuff</h2>
+            <p> {{displayable_data}} </p>
 
-            <h2>Below is NEW stuff</h2>
-            <p>{{stringified_playlists}}</p>
+            <h2>Below is META stuff</h2>
+            <p>{{total_organized_playlist_data}}</p>
+            
+        
 
+        <div class = "clusters-container container">
+
+            <div class="cluster row">
+                <h3> Cluster 1: 100 Tracks (4.20%) </h3>
+                <div class='col-sm-6 centroid'>
+                    <h4>Centroid</h4>
+                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
+                    <strong><span class="song-name truncate">Tokyo Drifting (with Denzel Curry)</span></strong>
+
+                </div>
+                <div class='col-sm-6'>
+                    <h4>Next Four Tracks</h4>
+                    <ol start="2">
+                        <li>Disturbia</li>
+                        <li>Bank Account</li>
+                        <li>When Am I Going to Lose You?</li>
+                        <li>CAN YOU HEAR THE MOON</li>
+                    </ol>
+                </div>
+
+            </div>
+
+            <!-- <div class="song">
+                <div class="playbutton animated faster fadeIn" style="display: none;">
+                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><i class="medium material-icons">play_circle_outline</i></a>
+                </div>
+                <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
+                <strong><span class="song-name truncate">Tokyo Drifting (with Denzel Curry)</span></strong>
+            </div> -->
+
+
+
+        </div>
         </body>
     </html>
     

@@ -1,17 +1,18 @@
-import json
+import json, logging
 from flask import Flask, request, redirect, render_template, url_for, session
 import requests
 from urllib.parse import quote
-
 from flask_session import Session
-from scripts import SpotifyUser, Contacter
-from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission
+
+from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission, organize_cluster_data_for_display
 
 # Authentication Steps, paramaters, and responses are defined at https://developer.spotify.com/web-api/authorization-guide/
 # Visit this url to see all the steps, parameters, and expected response.
 
-
 app = Flask(__name__)
+# demo_app_log_handler = logging.FileHandler(filename='logs/demoing_app.log')
+# app.logger.addHandler(demo_app_log_handler)
+# app.logger.addHandler(logging.StreamHandler())
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'test123test123'
 Session(app)
@@ -77,12 +78,12 @@ def callback():
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
     }
-    print(code_payload)
+    # app.logger.info(msg=code_payload)
     post_request = requests.post(SPOTIFY_TOKEN_URL, data=code_payload)
-    print(post_request.status_code)
+    # app.logger.info(msg=post_request.status_code)
     # Auth Step 5: Tokens are Returned to Application
     response_data = json.loads(post_request.text)
-    print(response_data)
+    # app.logger.info(msg=response_data)
     access_token = response_data["access_token"]
     # refresh_token = response_data["refresh_token"]
     # token_type = response_data["token_type"]
@@ -101,10 +102,11 @@ def callback():
     #make user 
     user = prime_user_from_access_token(user_id, access_token)
     session['VALID_USER'] = user
-    print('Set user')
-    print(session['VALID_USER'])
+    app.logger.info(msg='Set user')
+    # app.logger.info(msg=session['VALID_USER'])
 
     return redirect(url_for('appeducation'))
+
 
 
 
@@ -113,11 +115,11 @@ def clustertracks():
     algorithm = request.form.get('algorithm')
     desired_clusters = request.form.get('desired_clusters')
 
-    print('algorithm', algorithm)
-    print('clusters', desired_clusters)
+    app.logger.info(msg=f'algorithm: {algorithm}')
+    app.logger.info(msg=f'clusters: {desired_clusters}')
 
-    print('Auth header')
-    print(session['VALID_AUTH_HEADER'])
+    app.logger.info(msg='Auth header')
+    app.logger.info(msg=f"{session['VALID_AUTH_HEADER']}")
 
 
     # Get profile data
@@ -126,40 +128,42 @@ def clustertracks():
     # profile_data = json.loads(profile_response.text)
 
     #gather data
-    print('Preparing data')
-    print(session['VALID_USER'])
+    app.logger.info(msg='Preparing data')
+    app.logger.info(msg=f"{session['VALID_USER']}")
     chosen_algorithm = algorithm
     chosen_clusters = gather_cluster_size_from_submission(desired_clusters)
-    print('cluster size determined')
+    app.logger.info(msg='cluster size determined')
 
 
-    print('preparing data')
+    app.logger.info(msg='preparing data')
     user_prepared_data = prepare_data(session['VALID_USER'])
 
-    print('data prepared')
-    print(user_prepared_data)
+    app.logger.info(msg='data prepared')
+    # app.logger.info(msg=user_prepared_data)
 
 
 
     labelled_data = execute_clustering(chosen_algorithm,chosen_clusters,user_prepared_data)
 
-    print('data clustered')
+    app.logger.info(msg='data clustered')
     prepared_playlists = prepare_playlists(session['VALID_USER'],labelled_data)
+    app.logger.info(msg='ready for upload')
     session['PREPARED_PLAYLISTS'] = prepared_playlists     
-
+    app.logger.info(msg='added as session variable')
     # Combine profile and playlist data to display
     # return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
-    return redirect(url_for('clusteringresults', prepared_playlists = prepared_playlists))
+    return redirect(url_for('clusteringresults', _external=True))
 
 
 @app.route("/clusteringresults")
 def clusteringresults():
     prepared_playlists = session['PREPARED_PLAYLISTS']
-    return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
+    displayable_data, total_organized_playlist_data = organize_cluster_data_for_display(session['VALID_AUTH_HEADER'],prepared_playlists)
+    return render_template("clusteringresults.html", displayable_data = json.dumps(displayable_data), total_organized_playlist_data = json.dumps(total_organized_playlist_data))
 
 
 
 
 
 if __name__ == "__main__":
-    app.run( port=PORT)
+    app.run(debug=True, port=PORT)
