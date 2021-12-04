@@ -10,9 +10,7 @@ from utils import prime_user_from_access_token, prepare_playlists, prepare_data,
 # Visit this url to see all the steps, parameters, and expected response.
 
 app = Flask(__name__)
-# demo_app_log_handler = logging.FileHandler(filename='logs/demoing_app.log')
-# app.logger.addHandler(demo_app_log_handler)
-# app.logger.addHandler(logging.StreamHandler())
+
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'test123test123'
 Session(app)
@@ -33,21 +31,17 @@ CLIENT_SIDE_URL = "http://127.0.0.1"
 PORT = 8095
 REDIRECT_URI = "{}:{}/callback".format(CLIENT_SIDE_URL, PORT)
 SCOPE = "user-read-recently-played user-top-read  playlist-modify-public playlist-modify-private user-library-modify playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative"
-STATE = ""
-SHOW_DIALOG_bool = True
-SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
+# STATE = ""
+# SHOW_DIALOG_bool = True
+# SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
 
 auth_query_parameters = {
     "response_type": "code",
     "redirect_uri": REDIRECT_URI,
     "scope": SCOPE,
-    # "state": STATE,
-    # "show_dialog": SHOW_DIALOG_str,
     "client_id": CLIENT_ID
 }
 
-# session['VALID_AUTH_HEADER'] = {}
-# session['VALID_USER'] = None
 
 
 @app.route("/")
@@ -80,10 +74,8 @@ def callback():
     }
     # app.logger.info(msg=code_payload)
     post_request = requests.post(SPOTIFY_TOKEN_URL, data=code_payload)
-    # app.logger.info(msg=post_request.status_code)
     # Auth Step 5: Tokens are Returned to Application
     response_data = json.loads(post_request.text)
-    # app.logger.info(msg=response_data)
     access_token = response_data["access_token"]
     # refresh_token = response_data["refresh_token"]
     # token_type = response_data["token_type"]
@@ -103,8 +95,6 @@ def callback():
     user = prime_user_from_access_token(user_id, access_token)
     session['VALID_USER'] = user
     app.logger.info(msg='Set user')
-    # app.logger.info(msg=session['VALID_USER'])
-
     return redirect(url_for('appeducation'))
 
 
@@ -120,12 +110,6 @@ def clustertracks():
 
     app.logger.info(msg='Auth header')
     app.logger.info(msg=f"{session['VALID_AUTH_HEADER']}")
-
-
-    # Get profile data
-    # user_profile_api_endpoint = "{}/me".format(SPOTIFY_API_URL)
-    # profile_response = requests.get(user_profile_api_endpoint, headers=VALID_AUTH_HEADER)
-    # profile_data = json.loads(profile_response.text)
 
     #gather data
     app.logger.info(msg='Preparing data')
