@@ -397,6 +397,31 @@ class SpotifyUser:
 
 
 
+
+
+
+    def deploy_single_cluster_playlist(self,tracks_to_deploy,cluster_id,cluster_algo):
+        if self.name is not None:
+                id_to_add = self.name
+        else:
+            id_to_add = self.user_id if not self.optional_display_id else self.optional_display_id
+        new_name = f"{id_to_add}'s {cluster_algo} Cluster {cluster_id}"
+        playlist_params = {'name':new_name, 'description': 'These are tracks organized by their distance to the cluster centroid. The higher the song appears on this playlist, the more typical it is for this cluster. What can you find? Created via Radial Web App by Ryan Papetti'}
+        associated_tracks = tracks_to_deploy
+        associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
+
+        playlist = Playlist.generate_playlist_from_user(user = self, playlist_params = json.dumps(playlist_params))
+
+        # playlist.update_playlist_metadata(self, playlist_params)
+
+        playlist.add_track_objs_to_playlist_obj(associated_tracks_objs)
+
+        playlist.add_tracks_to_spotify_playlist(user = self)
+        return playlist
+
+
+
+
     def add_cluster_playlists(self, cluster_playlists, cluster_algo = 'KMeans'):
         '''
         fully_establish_and_add_cluster_playlists(self, desired_algorithm = 'HC 8')
@@ -410,17 +435,7 @@ class SpotifyUser:
         '''
 
         for cluster_id, cluster_playlist in cluster_playlists.items():
-            id_to_add = self.user_id if not self.optional_display_id else self.optional_display_id
-            new_name = f'{id_to_add} {cluster_algo} {cluster_id}'
-            playlist_params = {'name':new_name, 'description': 'These are tracks organized by their distance to the cluster centroid. The higher the song appears on this playlist, the more "typical" it is for this cluster. What can you find?'}
-            associated_tracks = cluster_playlist
-            associated_tracks_objs = [Track(track_id) for track_id in associated_tracks]
-
-            playlist = Playlist.generate_playlist_from_user(user = self, playlist_params = json.dumps(playlist_params))
-
-            playlist.add_track_objs_to_playlist_obj(associated_tracks_objs)
-
-            playlist.add_tracks_to_spotify_playlist(user = self)
+            _ = self.deploy_single_cluster_playlist(cluster_playlist, cluster_id + 1,cluster_algo)
 
 
         

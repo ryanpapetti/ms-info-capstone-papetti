@@ -69,15 +69,15 @@ class Contacter:
     def contact_api(self, endpoint, additional_request_parameters = None, contact_type = 'get', data_params = None):
         assert self.accessHeader
         
-        function_caller = {'get': self.session.get, 'post': self.session.post}
+        function_caller = {'get': self.session.get, 'post': self.session.post, 'put': self.session.put}
         proper_func = function_caller[contact_type]
 
         logging.info(f'We are making a {contact_type.upper()} request to {endpoint}')
 
-        if contact_type == 'post':
+        if contact_type in ['post', 'put']:
             new_auth_header = self.accessHeader
             new_auth_header['Content-Type'] = 'application/json'
-            logging.info('Proceeding with POST request')
+            logging.info(f'Proceeding with {contact_type.upper()} request')
             response =  proper_func(endpoint, headers = new_auth_header, data = data_params)
         else:
             logging.info('Proceeding with GET request')

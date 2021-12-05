@@ -1,15 +1,17 @@
-import json
+import json, random
 from flask import Flask, request, redirect, render_template, url_for, session
 import requests
 from urllib.parse import quote
 from flask_session import Session
 
-from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission, organize_cluster_data_for_display
+from utils import prime_user_from_access_token, prepare_playlists, prepare_data, execute_clustering, gather_cluster_size_from_submission, organize_cluster_data_for_display, load_proper_cluster_button
 
 # Authentication Steps, paramaters, and responses are defined at https://developer.spotify.com/web-api/authorization-guide/
 # Visit this url to see all the steps, parameters, and expected response.
 
 app = Flask(__name__)
+random.seed(420)
+
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'test123test123'
@@ -90,9 +92,11 @@ def callback():
     profile_response = requests.get(user_profile_api_endpoint, headers=authorization_header)
     profile_data = json.loads(profile_response.text)
     user_id = profile_data['id']
+    user_display_name = profile_data['display_name']
 
     #make user 
     user = prime_user_from_access_token(user_id, access_token)
+    user.name = user_display_name
     session['VALID_USER'] = user
     app.logger.info(msg='Set user')
     return redirect(url_for('appeducation'))
@@ -132,11 +136,14 @@ def clustertracks():
 
     labelled_data = execute_clustering(chosen_algorithm,chosen_clusters,user_prepared_data)
 
+    session['LABELLED_DATA'] = labelled_data
+
     app.logger.info(msg='data clustered')
     prepared_playlists = prepare_playlists(session['VALID_USER'],labelled_data)
     app.logger.info(msg='ready for upload')
     session['PREPARED_PLAYLISTS'] = prepared_playlists     
     app.logger.info(msg='added as session variable')
+    session['DEPLOYED_CLUSTERS_OBJS'] = {}
     # Combine profile and playlist data to display
     # return render_template("clusteringresults.html", stringified_playlists = json.dumps(prepared_playlists))
     return redirect(url_for('clusteringresults', _external=True))
@@ -146,8 +153,35 @@ def clustertracks():
 def clusteringresults():
     prepared_playlists = session['PREPARED_PLAYLISTS']
     displayable_data, total_organized_playlist_data = organize_cluster_data_for_display(session['VALID_AUTH_HEADER'],prepared_playlists)
-    return render_template("clusteringresults.html", displayable_data = json.dumps(displayable_data), total_organized_playlist_data = json.dumps(total_organized_playlist_data))
 
+    app.logger.info(f'deployed clusters already exist: {"DEPLOYED_CLUSTERS_OBJS" in session}')
+
+    if "DEPLOYED_CLUSTERS_OBJS" in session:
+        app.logger.info(f"{session['DEPLOYED_CLUSTERS_OBJS']}")
+
+    return render_template("clusteringresults.html", displayable_data = displayable_data, total_organized_playlist_data = total_organized_playlist_data, chosen_algorithm = session['ALGORITHM_CHOSEN'], chosen_clusters = session['CLUSTERING_CHOSEN'], button_chooser=load_proper_cluster_button)
+
+
+@app.route("/clusteringresults#<cluster_id>")
+def deploy_cluster(cluster_id):
+    specified_user = session['VALID_USER']
+    app.logger.info(f'{session["PREPARED_PLAYLISTS"].keys()}')
+    tracks_to_add = session['PREPARED_PLAYLISTS'][int(cluster_id)]
+    specified_algorithm = session['ALGORITHM_CHOSEN']
+    specified_clusters = session['CLUSTERING_CHOSEN']
+    clustering_type = f"{specified_algorithm.title()} ({specified_clusters})"
+    playlist_obj = specified_user.deploy_single_cluster_playlist(tracks_to_add, int(cluster_id) + 1, clustering_type)
+
+    #add description
+    # playlist_obj.update_playlist_metadata(specified_user,{'description':playlist_obj.description})
+    # return render_template("clusteringresults.html", displayable_data = displayable_data, total_organized_playlist_data = total_organized_playlist_data, chosen_algorithm = session['ALGORITHM_CHOSEN'], chosen_clusters = session['CLUSTERING_CHOSEN'])
+    playlist_url = f'https://open.spotify.com/playlist/{playlist_obj.playlist_id}'
+    if 'DEPLOYED_CLUSTERS_OBJS' in session:
+        session['DEPLOYED_CLUSTERS_OBJS'][int(cluster_id)] = playlist_obj
+    else:
+        session['DEPLOYED_CLUSTERS_OBJS'] = {int(cluster_id): playlist_obj}
+    return redirect(playlist_url)
+    
 
 
 

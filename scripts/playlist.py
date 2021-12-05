@@ -18,8 +18,8 @@ class Playlist:
     @classmethod
     def generate_playlist_from_user(cls,user, playlist_params):
         endpoint = f'https://api.spotify.com/v1/users/{user.user_id}/playlists' #it is a POST request
-
-        response_json = user.contacter.session.post(endpoint, headers = user.contacter.accessHeader, data = playlist_params).json()
+        logging.info(f'Generating playlist with params: {json.dumps(playlist_params)}')
+        response_json = user.contacter.contact_api(endpoint, data_params = playlist_params, contact_type = 'post').json()
 
         description = response_json['description']
         playlist_id = response_json['id']
@@ -124,6 +124,20 @@ class Playlist:
             self.snapshot_id = response_json['snapshot_id']
             query_counter +=1
         logging.info('Successfully added {} tracks to {} for {} in {} queries'.format(len(track_objs), self.name, user.name , query_counter))
+
+
+    def update_playlist_metadata(self,user, metadata_to_update):
+        uploadable_metadata = json.dumps(metadata_to_update)
+        endpoint = f'https://api.spotify.com/v1/playlists/{self.playlist_id}'
+        try:
+            response_json = user.contacter.contact_api(endpoint, data_params = uploadable_metadata, contact_type = 'put').json()
+            logging.info(response_json)
+            return True
+        except:
+            logging.info('There was an error with the request')
+            raise ValueError
+
+
 
 
 

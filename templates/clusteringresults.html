@@ -32,47 +32,102 @@
     </head>
 
         <body>
-            <h2>Below is DISPLAYABLE stuff</h2>
-            <p> {{displayable_data}} </p>
+            <h1>Your Clustering Results</h1>
 
-            <h2>Below is META stuff</h2>
-            <p>{{total_organized_playlist_data}}</p>
-            
-        
+            <h3 class='text-center'>You Chose {{chosen_algorithm}} with {{chosen_clusters}} Clusters </h3>
 
-        <div class = "clusters-container container">
+            {% for key in displayable_data.keys() %}
 
-            <div class="cluster row">
-                <h3> Cluster 1: 100 Tracks (4.20%) </h3>
-                <div class='col-sm-6 centroid'>
-                    <h4>Centroid</h4>
-                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable centroid-img" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
-                    <strong><span class="song-name truncate">Tokyo Drifting (with Denzel Curry)</span></strong>
 
+            <div class='jumbotron jumbotron-fluid'>
+                <div class = "clusters-container container">
+                    
+                <div class="cluster row">
+                    <h3> Cluster {{ key + 1 }}: {{total_organized_playlist_data[key]['size']}} Tracks ({{total_organized_playlist_data[key]['proportional_size']}}%)</h3>
+                    <div class='col-sm-6 centroid'>
+                        <h4>Centroid Track</h4>
+                        <a href="{{displayable_data[key][total_organized_playlist_data[key]['centroid_track']]['playable_url']}}" target="_blank"><img alt="album cover" class="hoverable centroid-img" style="border: 5px solid #ff002f" src="{{displayable_data[key][total_organized_playlist_data[key]['centroid_track']]['album_cover_url']}}"></a>
+                        <strong><span class="song-name truncate">{{displayable_data[key][total_organized_playlist_data[key]['centroid_track']]['name']}} by {{displayable_data[key][total_organized_playlist_data[key]['centroid_track']]['artists']}}</span></strong>
+   
+    
+                    </div>
+                    <div class='col-sm-6'>
+                        <h4>First Five Tracks</h4>
+                        <ol start="1">
+                            {% for track_id, track_data in displayable_data[key].items() %}
+                            <li><strong><span class="song-name truncate"> {{track_data['name']}} by {{track_data['artists']}}</span></strong></li>
+                            {% endfor %}
+                        </ol>
+
+
+
+                    {% set key = (key | int) %}
+                    
+                    {% set properButton = button_chooser(session,key) %}
+                    
+
+                    {% if properButton == 'deploy' %}
+                    <a href="{{url_for('deploy_cluster',cluster_id=key)}}" class="btn btn-primary btn-lg active deploy-button" role="button" aria-pressed="true" data-toggle="button" id="cluster-{{key}}">Deploy Your Cluster </a>
+                    
+                    {% else %}
+
+                    <a href="https://open.spotify.com/playlist/{url_for('get_deployed_cluster_obj', deployed_cluster_objs=session['DEPLOYED_CLUSTER_OBJS'], cluster_id = key)}}" class="btn btn-success btn-lg active deploy-button" role="button" aria-pressed="true" data-toggle="button" id="deployed-{{key}}">Listen to Your Cluster </a> 
+
+                    {% endif %}
+                    <!-- <i class="fa fa-spotify" aria-hidden="true"></i> -->
+
+                    <script type="text/javascript">
+                        $("a#cluster-{{key}}").on("click",function(){
+                            var proceedFlag = confirm('This will add the playlist to your Spotify account');
+
+                            if (proceedFlag==true) {
+                                
+                                var properAnchor = document.getElementById("cluster-{{key}}");
+    
+    
+                                window.open("{{url_for('deploy_cluster',cluster_id=key)}}", "_blank");
+
+                                properAnchor.setAttribute('href',"https://open.spotify.com/playlist/{url_for('get_deployed_cluster_obj', deployed_cluster_objs=session['DEPLOYED_CLUSTER_OBJS'], cluster_id = key)}}");
+    
+
+                                properAnchor.setAttribute('id',"deployed-{{key}}");
+
+
+                                properAnchor.innerText = 'Listen to Your Cluster';
+    
+                                properAnchor.classList.remove("btn-primary");
+    
+                                properAnchor.classList.add("btn-success");
+                            }
+
+                        });
+
+
+
+                        $("a#deployed-{{key}}").on("click",function(){
+                            
+     
+                            window.open("https://open.spotify.com/playlist/{url_for('get_deployed_cluster_obj', deployed_cluster_objs=session['DEPLOYED_CLUSTER_OBJS'], cluster_id = key)}}", "_blank");
+
+                            
+                        });
+                   </script>
+                    </div>
+
+                    
                 </div>
-                <div class='col-sm-6'>
-                    <h4>Next Four Tracks</h4>
-                    <ol start="2">
-                        <li><strong><span class="song-name truncate">Disturbia - Rihanna</span></strong></li>
-                        <li><strong><span class="song-name truncate">Bank Account - 21 Savage</span></strong></li>
-                        <li><strong><span class="song-name truncate">Smooth - Rob Thomas / Santana</span></strong></li>
-                        <li><strong><span class="song-name truncate">Midnight City - M83</span></strong></li>
-                    </ol>
-                </div>
-
+            </div>
+    
             </div>
 
-            <!-- <div class="song">
-                <div class="playbutton animated faster fadeIn" style="display: none;">
-                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><i class="medium material-icons">play_circle_outline</i></a>
-                </div>
-                <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
-                <strong><span class="song-name truncate">Tokyo Drifting (with Denzel Curry)</span></strong>
-            </div> -->
+            {% endfor %}
+
+
+            <a href="{{url_for('appeducation')}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">Try Another Set </a> 
 
 
 
-        </div>
+
         </body>
     </html>
     

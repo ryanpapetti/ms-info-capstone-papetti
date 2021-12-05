@@ -1,12 +1,15 @@
-import json, time, re, logging
-from flask import current_app
+import json, time, re, logging, random
+from flask import current_app, jsonify
 import requests
 from urllib.parse import quote
 import logging, pandas as pd
 from scipy.cluster.hierarchy import cut_tree
+from sklearn import cluster
 from sklearn.cluster import KMeans
 
 from scripts import SpotifyUser, Contacter
+
+random.seed(420)
 
 # logging.formatter
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -71,8 +74,8 @@ def get_cluster_playlist_metadata(clustered_tracks):
         tracks_to_be_displayed = tracks[:5]
         centroid_track = tracks_to_be_displayed[0]
         playlist_size = len(tracks)
-        playlist_proportion = playlist_size/total_tracks
-        organized_playlist_data = {'centroid_track':centroid_track, 'displayable_tracks':tracks_to_be_displayed, 'size': playlist_size, 'proportional_size': playlist_proportion}
+        playlist_proportion = round(100 * round(playlist_size/total_tracks, 3), 3)
+        organized_playlist_data = {'centroid_track':centroid_track, 'displayable_tracks':tracks_to_be_displayed, 'size': format(playlist_size, ","), 'proportional_size': playlist_proportion}
         total_organized_playlist_data[playlist] = organized_playlist_data
     return total_organized_playlist_data
 
@@ -87,9 +90,10 @@ def get_displayable_tracks_metadata(authorization_header,track_ids):
     for track_data in retrieved_metadata['tracks']:
         # i just need the name and the album cover and url to play
         track_name = track_data['name']
+        artists = ' / '.join([artist['name'] for artist in track_data['artists']])
         playable_url = track_data['external_urls']['spotify']
         album_cover_url = track_data['album']['images'][0]['url']
-        track_metadata = {'name': track_name, 'playable_url':playable_url, 'album_cover_url':album_cover_url}
+        track_metadata = {'name': track_name, 'playable_url':playable_url, 'album_cover_url':album_cover_url, 'artists':artists}
         total_track_metadata.append(track_metadata)
     
     return dict(zip(track_ids,total_track_metadata))
@@ -105,3 +109,19 @@ def organize_cluster_data_for_display(authorization_header,clustered_tracks):
         displayable_data[playlist_id] = tracks_metadata
     
     return displayable_data, total_organized_playlist_data
+
+
+
+def get_deployed_cluster_obj(deployed_cluster_objs, cluster_id):
+    cluster_id = int(cluster_id) if type(cluster_id) == str else cluster_id
+
+    return deployed_cluster_objs[cluster_id]
+
+def load_proper_cluster_button(session,cluster_id):
+    logging.info(f'Passed cluster_id {cluster_id} ({type(cluster_id)})')
+    if 'DEPLOYED_CLUSTERS_OBJS' in session:
+        logging.info(f"DEPLOYED CLUSTERS ARE: {session['DEPLOYED_CLUSTERS_OBJS']} ")
+        logging.info(f"Cluster ID ({cluster_id}) and set of keys of objects ({set(session['DEPLOYED_CLUSTERS_OBJS'].keys())})")
+        if cluster_id in session['DEPLOYED_CLUSTERS_OBJS']:
+            return 'listen'
+    return 'deploy'
