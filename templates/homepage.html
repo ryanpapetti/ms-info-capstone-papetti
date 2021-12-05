@@ -39,7 +39,7 @@
                 </div>
                 <div class='col-sm-12 animated fadeIn delay-1s'>
                     <a href="{{url_for('authenticateuser')}}" class="btn btn-primary btn-lg active get-started" role="button" aria-pressed="true" data-toggle="button" target="_blank" >Get Started</a>
-                    <script  type="text/javascript">
+                    <script type="text/javascript">
                         $("a.get-started").on("click",function(){
                             window.open("{{url_for('authenticateuser')}}", "_self");
                         });

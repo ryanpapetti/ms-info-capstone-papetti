@@ -26,6 +26,8 @@
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='clusteringresults.css') }}" media="screen">
         
     </head>
 
@@ -44,17 +46,17 @@
                 <h3> Cluster 1: 100 Tracks (4.20%) </h3>
                 <div class='col-sm-6 centroid'>
                     <h4>Centroid</h4>
-                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
+                    <a href="https://open.spotify.com/track/3AHqaOkEFKZ6zEHdiplIv7" target="_blank"><img alt="album cover" class="hoverable centroid-img" style="border: 5px solid #ff002f" src="https://i.scdn.co/image/ab67616d0000b273490997bc549d6ef6c3e948b5"></a>
                     <strong><span class="song-name truncate">Tokyo Drifting (with Denzel Curry)</span></strong>
 
                 </div>
                 <div class='col-sm-6'>
                     <h4>Next Four Tracks</h4>
                     <ol start="2">
-                        <li>Disturbia</li>
-                        <li>Bank Account</li>
-                        <li>When Am I Going to Lose You?</li>
-                        <li>CAN YOU HEAR THE MOON</li>
+                        <li><strong><span class="song-name truncate">Disturbia - Rihanna</span></strong></li>
+                        <li><strong><span class="song-name truncate">Bank Account - 21 Savage</span></strong></li>
+                        <li><strong><span class="song-name truncate">Smooth - Rob Thomas / Santana</span></strong></li>
+                        <li><strong><span class="song-name truncate">Midnight City - M83</span></strong></li>
                     </ol>
                 </div>
 

@@ -1,4 +1,4 @@
-import json, logging
+import json
 from flask import Flask, request, redirect, render_template, url_for, session
 import requests
 from urllib.parse import quote
@@ -116,6 +116,9 @@ def clustertracks():
     app.logger.info(msg=f"{session['VALID_USER']}")
     chosen_algorithm = algorithm
     chosen_clusters = gather_cluster_size_from_submission(desired_clusters)
+    session['ALGORITHM_CHOSEN'] = chosen_algorithm
+    session['CLUSTERING_CHOSEN'] = chosen_clusters
+    
     app.logger.info(msg='cluster size determined')
 
 
