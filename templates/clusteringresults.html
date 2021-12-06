@@ -123,7 +123,17 @@
             {% endfor %}
 
 
-            <a href="{{url_for('appeducation')}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button">Try Another Set </a> 
+            <a href="{{url_for('appeducation')}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true" data-toggle="button" id="start-over-button">Try Another Set </a> 
+
+            <script type="text/javascript">
+            $("a#start-over-button").on("click",function(){
+                            
+     
+                window.open("{{url_for('appeducation')}}", "_blank");
+
+                
+            });
+       </script>
 
 
 
