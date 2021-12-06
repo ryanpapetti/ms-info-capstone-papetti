@@ -7,7 +7,7 @@ WORKDIR /app
 SHELL ["/bin/bash", "--login", "-c"]
 
 RUN apt-get update
-RUN apt-get install nginx zip gcc musl-dev unzip nano systemd -y
+RUN apt-get install python3-pip python3-dev nginx zip gcc musl-dev unzip nano systemd -y
 
 #  Create the environment:
 COPY environment.yml .
@@ -29,10 +29,10 @@ COPY templates/ templates/
 
 COPY main.py main.py
 COPY utils.py utils.py
+COPY wsgi.py wsgi.py
 
-RUN cd scripts
-# COPY run.py .
+COPY entrypoint.sh entrypoint.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "capstone", "python", "ryan_clustering.py"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "capstone", "python", "main.py"]
