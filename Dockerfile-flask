@@ -25,11 +25,11 @@ COPY scripts/ scripts/
 COPY static/ static/
 COPY templates/ templates/
 
-COPY main.py main.py
-COPY utils.py utils.py
-COPY wsgi.py wsgi.py
+COPY main.py .
+COPY utils.py .
+COPY wsgi.py .
 
-COPY entrypoint.sh entrypoint.sh
+COPY entrypoint.sh .
 
 EXPOSE 80
 

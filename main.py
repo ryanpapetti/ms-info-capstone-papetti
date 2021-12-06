@@ -187,4 +187,6 @@ def deploy_cluster(cluster_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=PORT)
+    # app.run(debug=True, port=PORT)
+    app.run(host = '0.0.0.0', port=PORT, debug=True)
+    import sys; sys.exit(0)
