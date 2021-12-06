@@ -1,4 +1,4 @@
-name: capstone
+name: radial-web-app
 channels:
   - Microsoft
   - defaults
