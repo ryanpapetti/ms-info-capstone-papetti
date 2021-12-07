@@ -14,7 +14,7 @@ random.seed(420)
 
 
 app.config['SESSION_TYPE'] = 'filesystem'
-app.secret_key = 'test123test123'
+app.secret_key = 'l2345jh34kj5hj5g34253458345485487trhgufhgdhsjk'
 Session(app)
 #  Client Keys
 CLIENT_ID = "7ec4038de1184e2fb0a1caf13352e295"
@@ -30,8 +30,8 @@ SPOTIFY_API_URL = "{}/{}".format(SPOTIFY_API_BASE_URL, API_VERSION)
 
 # Server-side Parameters
 CLIENT_SIDE_URL = "https://54.202.137.205/"
-PORT = 8095
-REDIRECT_URI = "{}:{}/callback".format(CLIENT_SIDE_URL, PORT)
+# PORT = 8095
+REDIRECT_URI = "{}/callback".format(CLIENT_SIDE_URL)
 SCOPE = "user-read-recently-played user-top-read  playlist-modify-public playlist-modify-private user-library-modify playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative"
 # STATE = ""
 # SHOW_DIALOG_bool = True
@@ -188,5 +188,5 @@ def deploy_cluster(cluster_id):
 
 if __name__ == "__main__":
     # app.run(debug=True, port=PORT)
-    app.run(host = '0.0.0.0', port=PORT, debug=True)
+    app.run(host = '0.0.0.0', debug=True)
     import sys; sys.exit(0)
